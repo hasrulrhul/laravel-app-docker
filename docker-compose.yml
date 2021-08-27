@@ -1,0 +1,45 @@
+version: "3.7"
+
+services:
+    nginx:
+        container_name: con_laravel_sample
+        # lokasi source code
+        build:
+            context: ./
+            dockerfile: _web.dockerfile
+        # path untuk source di dalam docker
+        volumes:
+            - ./:/var/www
+        image: webserver_laravel:1.0
+        ports:
+            - "8000:80"
+
+    app:
+        container_name: app_laravel_sample
+        build:
+            context: ./
+            dockerfile: _app.dockerfile
+        image: app_laravel:1.0
+        volumes:
+            - ./:/var/www
+
+    # MySQL database service
+    db:
+        image: mysql:5.7
+        platform: linux/amd64
+        container_name: mysql_db_laravel
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+        env_file:
+            - ./.env
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        driver: bridge
